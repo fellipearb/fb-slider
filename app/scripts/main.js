@@ -4,7 +4,11 @@ window.fbSlider = (elements) => {
     let
         startSlider = (elm) => {
             let 
-                options = undefined,
+                options = {
+                    items: 1,
+                    transition: 2000,
+                    auto: true
+                },
                 properties = [],
                 styles = [],
                 content = undefined,
@@ -13,7 +17,11 @@ window.fbSlider = (elements) => {
                 timeout = undefined,
                 stop = undefined,
                 getOptions = () => {
-                    options = JSON.parse(current.getAttribute('data-options'))
+                    var others = JSON.parse(current.getAttribute('data-options'))
+
+                    options.items = others.items == undefined ? options.items : others.items
+                    options.transition = others.transition == undefined ? options.transition : others.transition
+                    options.auto = others.auto == undefined ? options.auto : others.auto
 
                     console.log('fb-slider => options', options)
                 },
@@ -21,7 +29,7 @@ window.fbSlider = (elements) => {
                     properties.width = current.clientWidth
                     properties.height = current.clientHeight
 
-                    console.log('fb-slider => properties', options, properties)
+                    console.log('fb-slider => properties', options, properties, properties.auto)
                 },
                 setStyles = () => {
                     content = current.getElementsByClassName('fb-slider-content')[0]
@@ -46,7 +54,7 @@ window.fbSlider = (elements) => {
                 },
                 setAnimate = () => {
                     setTimeout(function(){
-                        if( !stop ) {
+                        if( !stop && options.auto ) {
                             transition -= properties.width
 
                             if( (transition * -1) === content.clientWidth )
@@ -75,6 +83,14 @@ window.fbSlider = (elements) => {
                         console.log( 'fb-slider => mouseout' )
                     }
                     current.addEventListener("mouseout", fn)
+                },
+                startOnClick = () => {
+                    let fn = () => {
+                        options.auto = true
+
+                        console.log( 'fb-slider => mousedown' )
+                    }
+                    current.addEventListener("mousedown", fn)
                 }
 
             getOptions()
@@ -83,6 +99,7 @@ window.fbSlider = (elements) => {
             setAnimate()
             stopWhenOver()
             startWhenOverOut()
+            startOnClick()
         }
 
         for(var i=0; i < elements.length; i++)
