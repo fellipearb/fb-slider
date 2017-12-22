@@ -1,8 +1,7 @@
 "use strict";
 
-window.fbSlider = (elm) => {
-    let 
-        elements = elm,
+window.fbSlider = (elements) => {
+    let
         startSlider = (elm) => {
             let 
                 options = undefined,
