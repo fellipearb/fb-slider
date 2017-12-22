@@ -91,5 +91,5 @@ window.fbSlider = (elm) => {
 }
 
 (function(){
-    new fbSlider(document.getElementsByClassName('myslider'))    
+    new fbSlider(document.getElementsByClassName('fb-slider'))    
 })()
