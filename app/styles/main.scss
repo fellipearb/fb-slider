@@ -11,6 +11,7 @@ body, html {
 .fb-slider {
   width: 100%;
   overflow: hidden;
+  cursor: -webkit-grab;
 
   .fb-slider-content {
     -webkit-transition: 1s ease-in-out;

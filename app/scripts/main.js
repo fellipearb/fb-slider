@@ -1,4 +1,7 @@
-"use strict";
+'use strict';
+
+var teste = 0;
+let teste2 = 1;
 
 window.fbSlider = (elements) => {
     let
@@ -14,6 +17,7 @@ window.fbSlider = (elements) => {
                 content = undefined,
                 current = elm,
                 transition = 0,
+                transitionDrag = undefined,
                 timeout = undefined,
                 stop = undefined,
                 getOptions = () => {
@@ -33,6 +37,7 @@ window.fbSlider = (elements) => {
                 },
                 setStyles = () => {
                     content = current.getElementsByClassName('fb-slider-content')[0]
+                    content.style.transform = 'translateX(0px)'
                     
                     let 
                         qtd = content.getElementsByClassName('fb-item').length,
@@ -60,13 +65,47 @@ window.fbSlider = (elements) => {
                             if( (transition * -1) === content.clientWidth )
                                 transition = 0
 
-                            content.style.transform = "translateX("+ transition +"px)"
-                        }                    
+                            content.style.transform = 'translateX('+ transition +'px)'
+                        }
 
                         setAnimate()
                     }, options.transition)
 
                     console.log('fb-slider => animate')
+                },
+                setAnimateDrag = (event) => {
+                    if( event.y === 0 )
+                        return false
+
+                    let drag = undefined,
+                        translate = undefined
+
+                    translate = content.style.cssText.split('translateX(')[1].split(')')[0].replace('px', '')
+
+                    if( transitionDrag < event.x ) {
+                        drag = (transitionDrag - event.x) * 0.1
+                        console.log( 'lado direita', drag )
+                    } else {
+                        drag = Math.abs(event.x - transitionDrag) * 0.1
+                        console.log( 'lado esquerda', drag, content.clientWidth )
+                    }
+
+                    // if( Math.abs(drag) > (properties.width * 0.2) )
+                    //     drag = (properties.width * 0.2)
+
+                    translate = translate - drag
+
+                    if( translate > 0 )
+                        translate = 0
+
+                    if( Math.abs(translate) > content.clientWidth )
+                        translate = (content.clientWidth - current.clientWidth)
+
+                    content.style.transform = 'translateX('+ translate +'px)'
+                    console.log('fb-slider => animate drag', 'translate => ', translate)
+                    console.log('fb-slider => animate drag', 'transitionDrag => ', transitionDrag)
+                    console.log('fb-slider => animate drag',  'X => ', event.x)
+                    console.log('fb-slider => animate drag',  'TRANS => ', transitionDrag - event.x)
                 },
                 stopWhenOver = () => {
                     let fn = () => {
@@ -74,15 +113,15 @@ window.fbSlider = (elements) => {
 
                         console.log( 'fb-slider => mouseenter' )
                     }
-                    current.addEventListener("mouseenter", fn)
+                    current.addEventListener('mouseenter', fn)
                 },
                 startWhenOverOut = () => {
                     let fn = () => {
-                        stop = false
+                        // stop = false
 
                         console.log( 'fb-slider => mouseout' )
                     }
-                    current.addEventListener("mouseout", fn)
+                    current.addEventListener('mouseout', fn)
                 },
                 startOnClick = () => {
                     let fn = () => {
@@ -90,7 +129,38 @@ window.fbSlider = (elements) => {
 
                         console.log( 'fb-slider => mousedown' )
                     }
-                    current.addEventListener("mousedown", fn)
+                    current.addEventListener('mousedown', fn)
+                },
+                getDragStart = () => {
+                    let fn = (e) => {
+                        stop = true
+                        transitionDrag = e.x
+                        console.log('fb-slider => dragstart', e.x)
+                    }
+                    current.addEventListener("dragstart", fn, false);
+                },
+                getDragEnd = () => {
+                    let fn = (e) => {
+                        // stop = false
+                        transitionDrag = e.x
+                        console.log('fb-slider => dragend')
+                    }
+                    current.addEventListener("dragend", fn, false);
+                },
+                getDragMove = () => {
+                    let fn = (e) => {
+                        stop = true
+                        setAnimateDrag(e)
+                        console.log('fb-slider => drag')
+                    }
+                    current.addEventListener("drag", fn, false);
+                },
+                getDragOver = () => {
+                    let fn = (e) => {
+                        e.preventDefault()
+                        console.log('fb-slider => dragover')
+                    }
+                    current.addEventListener("dragover", fn, false);
                 }
 
             getOptions()
@@ -100,6 +170,10 @@ window.fbSlider = (elements) => {
             stopWhenOver()
             startWhenOverOut()
             startOnClick()
+            getDragStart()
+            getDragEnd()
+            getDragMove()
+            getDragOver()
         }
 
         for(var i=0; i < elements.length; i++)
